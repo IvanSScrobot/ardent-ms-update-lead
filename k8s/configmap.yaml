@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retell-webhook-config
+  namespace: default
+  labels:
+    app: retell-webhook-processor
+    component: config
+data:
+  # Database configuration
+  DB_HOST: "postgres-service.default.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "ardent_survey"
+  DB_TABLE_NAME: "survey_responses"
+
+  # Ollama LLM configuration
+  OLLAMA_URL: "http://10.10.10.100::11434"
+  OLLAMA_MODEL: "qwen3:30b"
+  MAX_TOKENS_PER_CHUNK: "2048"
+
+  # Application configuration
+  PORT: "3000"
+  NODE_ENV: "production"
+
+  # Logging configuration
+  LOG_LEVEL: "info"
+
+  # Performance tuning
+  UV_THREADPOOL_SIZE: "4"
+  NODE_OPTIONS: "--max-old-space-size=512"
