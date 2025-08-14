@@ -24,7 +24,7 @@ describe('Webhook API Tests', () => {
                 call_id: 'Jabr9TXYYJHfvl6Syypi88rdAHYHmcq6',
                 agent_id: 'oBeDLoLOeuAbiuaMFXRtDOLriTJ5tSxD',
                 call_status: 'registered',
-                metadata: {},
+                metadata: { "survey_id": "9" },
                 retell_llm_dynamic_variables: {
                     customer_name: 'John Doe'
                 },

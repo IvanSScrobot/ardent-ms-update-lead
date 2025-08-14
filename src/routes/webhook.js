@@ -22,7 +22,7 @@ function validateWebhookPayload(body) {
         errors.push('Missing transcript in call object');
     }
 
-    if (body.call.survey_id === undefined || body.call.survey_id === null) {
+    if (body.call.metadata.survey_id === undefined || body.call.metadata.survey_id === null) {
         errors.push('Missing survey_id in call object');
     }
 
@@ -45,7 +45,7 @@ function extractWebhookData(body) {
     const extractedData = {
         transcript: call.transcript,
         dynamicVariables: call.retell_llm_dynamic_variables || {},
-        surveyId: call.survey_id,
+        surveyId: call.metadata.survey_id,
         callId: call.call_id,
         metadata: {
             event: body.event,
@@ -93,7 +93,7 @@ router.post('/retell', async (req, res) => {
             requestId,
             event: req.body.event,
             callId: req.body.call?.call_id,
-            surveyId: req.body.call?.survey_id,
+            surveyId: req.body.call?.metadata.survey_id,
             payloadSize: JSON.stringify(req.body).length
         });
 
@@ -260,7 +260,7 @@ router.post('/retell', async (req, res) => {
             error: error.message,
             stack: error.stack,
             processingTime: `${processingTime}ms`,
-            surveyId: req.body.call?.survey_id,
+            surveyId: req.body.call?.metadata.survey_id,
             callId: req.body.call?.call_id
         });
 

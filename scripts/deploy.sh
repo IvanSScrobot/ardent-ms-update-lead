@@ -164,7 +164,7 @@ show_status() {
     echo
     
     echo "ConfigMaps:"
-    kubectl get configmaps retell-webhook-config -n "$NAMESPACE"
+    kubectl get configmaps retell-processor-config -n "$NAMESPACE"
     echo
     
     echo "Secrets:"

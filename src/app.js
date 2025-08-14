@@ -9,6 +9,8 @@ const healthRoutes = require('./routes/health');
 const { connectDatabase } = require('./database/connection');
 
 const app = express();
+app.use(express.json({ limit: '50mb' }));
+
 const PORT = process.env.PORT || 3000;
 
 // Middleware

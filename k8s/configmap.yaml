@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: retell-webhook-config
+  name: retell-processor-config
   namespace: default
   labels:
     app: retell-webhook-processor
@@ -15,7 +15,7 @@ data:
 
   # Ollama LLM configuration
   OLLAMA_URL: "http://10.10.10.100::11434"
-  OLLAMA_MODEL: "qwen3:30b"
+  OLLAMA_MODEL: "qwen3:30b" # gpt-oss:20b
   MAX_TOKENS_PER_CHUNK: "2048"
 
   # Application configuration

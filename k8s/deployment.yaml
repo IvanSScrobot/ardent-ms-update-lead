@@ -46,7 +46,7 @@ spec:
           # Environment variables from ConfigMap
           envFrom:
             - configMapRef:
-                name: retell-webhook-config
+                name: retell-processor-config
 
           # Environment variables from Secret
           env:

@@ -1,4 +1,4 @@
-# Retell Webhook Processor
+# Retell Processor
 
 A Kubernetes-based microservice for processing Retell webhook payloads and generating call summaries using a local LLM (Ollama).
 
@@ -180,10 +180,12 @@ curl -X POST http://localhost:3000/api/webhook/retell \
     "event": "call_ended",
     "call": {
       "call_id": "test123",
-      "survey_id": 12345,
       "transcript": "This is a test call transcript.",
       "retell_llm_dynamic_variables": {
-        "customer_name": "John Doe"
+      "customer_name": "John Doe",
+      "metadata": {
+        "survey_id": "9"
+        }
       }
     }
   }'
@@ -263,8 +265,8 @@ kubectl port-forward svc/retell-webhook-processor-service 8080:80
 curl http://localhost:8080/health/detailed
 
 # Check configuration
-kubectl get configmap retell-webhook-config -o yaml
-kubectl get secret retell-webhook-secrets -o yaml
+kubectl get configmap retell-processor-config -o yaml
+kubectl get secret retell-processor-secrets -o yaml
 ```
 
 ## Development

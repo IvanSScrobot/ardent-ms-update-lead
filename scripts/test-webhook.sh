@@ -57,7 +57,9 @@ create_test_payload() {
     "disconnection_reason": "user_hangup",
     "transcript": "Hello, thank you for calling our customer service. My name is Sarah, how can I help you today? Hi Sarah, I'm calling because I've been having issues with my internet connection for the past few days. It keeps dropping out every few hours and it's really frustrating. I work from home so I need a reliable connection. I understand how frustrating that must be, especially when you're working from home. Let me look into your account and see what might be causing these connection issues. Can you please provide me with your account number or the phone number associated with your service? Sure, my account number is 123456789. Thank you. I can see your account here. I notice there have been some reported outages in your area over the past week due to maintenance work on our network infrastructure. However, those should have been resolved by now. Let me run a diagnostic test on your connection. I can see that your modem is showing some signal issues. The signal strength is lower than it should be. This could be due to a loose cable connection or an issue with the modem itself. Have you tried unplugging your modem for about 30 seconds and then plugging it back in? Yes, I've tried that several times but it doesn't seem to help for very long. The connection comes back but then drops again after a few hours. I see. In that case, I think we should schedule a technician to come out and check your equipment and the line connection. There's no charge for this service call since you're experiencing ongoing issues. Would tomorrow afternoon work for you? That would be great, yes. What time would the technician arrive? We have availability between 2 PM and 5 PM tomorrow. The technician will call you about 30 minutes before arriving. Perfect, that works for me. Is there anything else I should do in the meantime? Just make sure someone over 18 is available to let the technician in, and if possible, please have your modem accessible. The technician will test everything and replace any faulty equipment if needed. Okay, sounds good. Thank you so much for your help, Sarah. You're very welcome! I've scheduled the appointment for tomorrow between 2 and 5 PM. You should receive a confirmation text shortly. Is there anything else I can help you with today? No, that covers everything. Thanks again! Have a great day! You too, goodbye!",
     "opt_out_sensitive_data_storage": false,
-    "survey_id": $survey_id
+    "metadata": {
+            "survey_id": $survey_id
+        }
   }
 }
 EOF
@@ -88,7 +90,9 @@ local survey_id="$1"
     "disconnection_reason": "user_hangup",
     "transcript": "Hello, this is a short test call transcript for testing the webhook processing functionality.",
     "opt_out_sensitive_data_storage": false,
-    "survey_id": $survey_id
+    "metadata": {
+            "survey_id": $survey_id
+    }
   }
 }
 EOF
