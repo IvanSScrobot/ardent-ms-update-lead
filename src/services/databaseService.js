@@ -193,6 +193,56 @@ class DatabaseService {
     }
 
     /**
+     * Update transcript in the survey_responses table
+     */
+    async updateTranscript(surveyId, transcript) {
+        try {
+            logger.info('Updating transcript in survey_responses table', {
+                surveyId,
+                transcriptLength: transcript.length
+            });
+
+            const updateQuery = `
+                UPDATE ${this.tableName}
+                SET transcript = $1, updated_at = NOW()
+                WHERE id = $2
+                RETURNING id, updated_at
+            `;
+
+            const result = await query(updateQuery, [transcript, surveyId]);
+
+            if (result.rowCount > 0) {
+                const updatedRecord = result.rows[0];
+                logger.info('Successfully updated transcript', {
+                    surveyId,
+                    updatedAt: updatedRecord.updated_at,
+                    transcriptLength: transcript.length
+                });
+
+                return {
+                    success: true,
+                    surveyId,
+                    updatedAt: updatedRecord.updated_at
+                };
+            } else {
+                logger.warn('No record found to update transcript', { surveyId });
+                return {
+                    success: false,
+                    reason: 'record_not_found',
+                    surveyId
+                };
+            }
+        } catch (error) {
+            logger.error('Error updating transcript', {
+                surveyId,
+                error: error.message,
+                stack: error.stack
+            });
+            throw new Error(`Failed to update transcript: ${error.message}`);
+        }
+    }
+
+    /**
      * Create table if it doesn't exist (for development/testing)
      */
     // ToDo: Uncomment and provide actual table schema to create the table automatically
