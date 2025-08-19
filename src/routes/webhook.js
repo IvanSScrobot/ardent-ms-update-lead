@@ -184,11 +184,35 @@ router.post('/retell', async (req, res) => {
         }
 
         if (recordStatus.exists && !recordStatus.processed) {
-            logger.info('Record not processed yet, proceeding with summary generation', {
+            logger.info('Record not processed yet, proceeding with transcript update and summary generation', {
                 requestId,
                 surveyId,
                 recordExists: recordStatus.exists
             });
+
+            // Step 3.5: Update transcript in survey_responses table
+            logger.info('STEP 3.5: Updating transcript in survey_responses table', {
+                requestId,
+                surveyId,
+                transcriptLength: transcript.length
+            });
+
+            const transcriptUpdateResult = await databaseService.updateTranscript(surveyId, transcript);
+
+            if (transcriptUpdateResult.success) {
+                logger.info('Transcript update completed successfully', {
+                    requestId,
+                    surveyId,
+                    updatedAt: transcriptUpdateResult.updatedAt,
+                    transcriptLength: transcript.length
+                });
+            } else {
+                logger.warn('Transcript update failed', {
+                    requestId,
+                    surveyId,
+                    reason: transcriptUpdateResult.reason
+                });
+            }
 
             // Step 4: Generate summary using LLM
             logger.info('STEP 4: Generating summary with LLM', {
