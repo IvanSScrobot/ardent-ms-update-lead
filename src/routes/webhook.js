@@ -292,6 +292,21 @@ router.post('/retell', async (req, res) => {
                     customerName: odooResult.customerName
                 });
 
+                const updated = await databaseService.markAsSentToOdoo(surveyId);
+
+                if (updated) {
+                    logger.info({
+                        surveyId,
+                        leadId: leadResult.leadId,
+                        customerName: surveyData.customer_name
+                    }, 'Successfully created Odoo lead and marked survey as sent');
+                } else {
+                    logger.warn({
+                        surveyId,
+                        leadId: leadResult.leadId
+                    }, 'Created Odoo lead but failed to update survey status');
+                }
+
             } catch (odooError) {
                 logger.error('Odoo lead creation failed', {
                     requestId,
