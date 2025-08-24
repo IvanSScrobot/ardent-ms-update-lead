@@ -18,6 +18,11 @@ data:
   OLLAMA_MODEL: "qwen3:30b" # gpt-oss:20b
   MAX_TOKENS_PER_CHUNK: "2048"
 
+  # Odoo CRM configuration
+  ODOO_URL: "https://odoo.ardnt.io"
+  ODOO_DATABASE: "bitnami_odoo"
+  ODOO_USERNAME: "iskrobot@ardentbc.com"
+
   # Application configuration
   PORT: "3000"
   NODE_ENV: "production"

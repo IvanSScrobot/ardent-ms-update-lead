@@ -6,7 +6,7 @@ class LLMService {
         // Ollama configuration from ConfigMap and Secret
         this.ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
         this.ollamaApiKey = process.env.OLLAMA_API_KEY; // Optional, from Secret if needed
-        this.model = process.env.OLLAMA_MODEL || 'llama2';
+        this.model = process.env.OLLAMA_MODEL || 'qwen3:30b';
         this.maxTokensPerChunk = parseInt(process.env.MAX_TOKENS_PER_CHUNK) || 2048;
 
         logger.info('LLM Service initialized', {

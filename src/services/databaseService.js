@@ -243,6 +243,38 @@ class DatabaseService {
     }
 
     /**
+     * Mark a survey response as sent to Odoo
+     * @param {number} surveyId - The survey response ID
+     * @returns {Promise<boolean>} Success status
+     */
+    async markAsSentToOdoo(surveyId) {
+
+        try {
+            const query = `
+          UPDATE ${this.tableName}
+          SET sent_to_odoo = TRUE, updated_at = NOW()
+          WHERE id = $1
+        `;
+
+            const result = await query(query, [surveyId]);
+
+            if (result.rowCount === 0) {
+                logger.warn({ surveyId }, 'No rows updated when marking as sent to Odoo');
+                return false;
+            }
+
+            logger.info({ surveyId }, 'Marked survey response as sent to Odoo');
+            return true;
+
+        } catch (error) {
+            logger.error({
+                err: error,
+                surveyId
+            }, 'Failed to mark survey response as sent to Odoo');
+            throw new Error(`Failed to mark as sent to odoo: ${error.message}`);
+        }
+    }
+    /**
      * Create table if it doesn't exist (for development/testing)
      */
     // ToDo: Uncomment and provide actual table schema to create the table automatically
