@@ -10,7 +10,7 @@ process.env.DB_USER = 'test_user';
 process.env.DB_PASSWORD = 'test_password';
 process.env.DB_TABLE_NAME = 'test_call_summaries';
 process.env.OLLAMA_URL = 'http://localhost:11434';
-process.env.OLLAMA_MODEL = 'llama2';
+process.env.OLLAMA_MODEL = 'qwen3:30b';
 process.env.MAX_TOKENS_PER_CHUNK = '2048';
 process.env.LOG_LEVEL = 'error'; // Reduce log noise during tests
 

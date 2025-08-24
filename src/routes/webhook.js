@@ -1,6 +1,7 @@
 const express = require('express');
 const llmService = require('../services/llmService');
 const databaseService = require('../services/databaseService');
+const odooService = require('../services/odooService');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -58,8 +59,8 @@ function extractWebhookData(body) {
             disconnectionReason: call.disconnection_reason
         }
     };
-
-    logger.info('Webhook data extracted successfully', {
+    logger.info('Extracted webhook data', extractedData);
+    logger.info('=== Webhook data extracted successfully ===', {
         surveyId: extractedData.surveyId,
         callId: extractedData.callId,
         transcriptLength: extractedData.transcript.length,
@@ -249,6 +250,64 @@ router.post('/retell', async (req, res) => {
                 recordUpdated: dbResult.record?.updated_at
             });
 
+            // Step 6: Create lead in Odoo CRM
+            logger.info('STEP 6: Creating lead in Odoo CRM', {
+                requestId,
+                surveyId,
+                callId
+            });
+
+            let odooResult = null;
+            try {
+                // Extract customer name from dynamic variables or use a default
+                const customerName = dynamicVariables.customer_name ||
+                    dynamicVariables.customerName ||
+                    dynamicVariables.name ||
+                    `Survey Respondent ${surveyId}`;
+
+                const leadData = {
+                    customerName: customerName,
+                    surveyId: surveyId,
+                    summary: summary,
+                    phone: metadata.toNumber,
+                    email: dynamicVariables.email || dynamicVariables.emailAddress || null
+                };
+
+                logger.info('=== Prepared lead data for Odoo ===', {
+                    requestId,
+                    surveyId,
+                    customerName: leadData.customerName,
+                    phone: leadData.phone,
+                    email: leadData.email
+                });
+
+                const uid = await odooService.authenticate();
+                console.log('Authenticated uid:', uid);
+                odooResult = await odooService.createLead(leadData);
+
+                logger.info('Odoo lead creation completed', {
+                    requestId,
+                    surveyId,
+                    leadId: odooResult.leadId,
+                    customerName: odooResult.customerName
+                });
+
+            } catch (odooError) {
+                logger.error('Odoo lead creation failed', {
+                    requestId,
+                    surveyId,
+                    error: odooError.message,
+                    stack: odooError.stack,
+                    errorType: odooError.message.includes('Missing required Odoo environment variables') ? 'configuration' : 'runtime'
+                });
+                // Continue processing even if Odoo fails
+                odooResult = {
+                    success: false,
+                    error: odooError.message,
+                    errorType: odooError.message.includes('Missing required Odoo environment variables') ? 'configuration' : 'runtime'
+                };
+            }
+
             const processingTime = Date.now() - startTime;
 
             logger.info('=== WEBHOOK PROCESSING COMPLETED SUCCESSFULLY ===', {
@@ -257,7 +316,8 @@ router.post('/retell', async (req, res) => {
                 callId,
                 processingTime: `${processingTime}ms`,
                 action: dbResult.action,
-                summaryLength: summary.length
+                summaryLength: summary.length,
+                odooLeadCreated: odooResult?.success || false
             });
 
             // Return success response
@@ -270,7 +330,8 @@ router.post('/retell', async (req, res) => {
                     summaryLength: summary.length,
                     databaseAction: dbResult.action,
                     processingTimeMs: processingTime,
-                    record: dbResult.record
+                    record: dbResult.record,
+                    odooLead: odooResult
                 },
                 requestId
             });

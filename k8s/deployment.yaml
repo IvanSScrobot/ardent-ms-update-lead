@@ -63,9 +63,14 @@ spec:
             - name: OLLAMA_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: retell-webhook-secrets
+                  name: retell-processor-secrets
                   key: OLLAMA_API_KEY
                   optional: true
+            - name: ODOO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: retell-processor-secrets
+                  key: ODOO_API_KEY
 
           # Resource limits and requests
           resources:
