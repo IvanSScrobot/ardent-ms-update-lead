@@ -19,11 +19,11 @@ function validateWebhookPayload(body) {
         return errors;
     }
 
-    if (!body.call.transcript) {
+    if (body.call.transcript === undefined || body.call.transcript === null) {
         errors.push('Missing transcript in call object');
     }
 
-    if (body.call.metadata.survey_id === undefined || body.call.metadata.survey_id === null) {
+    if (!body.call.metadata || body.call.metadata.survey_id === undefined || body.call.metadata.survey_id === null) {
         errors.push('Missing survey_id in call object');
     }
 
@@ -36,18 +36,67 @@ function validateWebhookPayload(body) {
 }
 
 /**
+ * Normalize call analysis shape from webhook payload
+ * Handles objects, arrays, and JSON strings.
+ */
+function normalizeCallAnalysis(callAnalysis) {
+    if (!callAnalysis) {
+        return {};
+    }
+
+    if (typeof callAnalysis === 'string') {
+        try {
+            const parsed = JSON.parse(callAnalysis);
+            return normalizeCallAnalysis(parsed);
+        } catch (error) {
+            return { call_summary: callAnalysis };
+        }
+    }
+
+    if (Array.isArray(callAnalysis)) {
+        const withSummary = callAnalysis.find(item =>
+            item && typeof item === 'object' && item.call_summary !== undefined
+        );
+        if (withSummary) {
+            return withSummary;
+        }
+
+        const firstObject = callAnalysis.find(item => item && typeof item === 'object');
+        if (firstObject) {
+            return firstObject;
+        }
+
+        const hasStringEntries = callAnalysis.some(item => typeof item === 'string');
+        if (hasStringEntries) {
+            return { call_summary: callAnalysis };
+        }
+
+        return {};
+    }
+
+    if (typeof callAnalysis === 'object') {
+        return callAnalysis;
+    }
+
+    return {};
+}
+
+/**
  * Extract relevant data from webhook payload
  */
-function extractWebhookData(body) {
-    logger.debug('Extracting webhook data');
+function extractWebhookData(body, requestId) {
+    logger.debug('Extracting webhook data', { requestId });
 
     const { call } = body;
+    const normalizedCallAnalysis = normalizeCallAnalysis(call.call_analysis);
 
     const extractedData = {
         transcript: call.transcript,
         dynamicVariables: call.retell_llm_dynamic_variables || {},
         surveyId: call.metadata.survey_id,
         callId: call.call_id,
+        agentId: call.agent_id,
+        callAnalysis: normalizedCallAnalysis,
         metadata: {
             event: body.event,
             callType: call.call_type,
@@ -59,15 +108,20 @@ function extractWebhookData(body) {
             disconnectionReason: call.disconnection_reason
         }
     };
-    logger.info('Extracted webhook data', extractedData);
+    logger.info('Extracted webhook data', {
+        ...extractedData,
+        requestId
+    });
     logger.info('=== Webhook data extracted successfully ===', {
+        requestId,
         surveyId: extractedData.surveyId,
         callId: extractedData.callId,
         transcriptLength: extractedData.transcript.length,
         dynamicVariableKeys: Object.keys(extractedData.dynamicVariables),
         event: extractedData.metadata.event,
         callType: extractedData.metadata.callType,
-        direction: extractedData.metadata.direction
+        direction: extractedData.metadata.direction,
+        callAnalysisShape: Array.isArray(call.call_analysis) ? 'array' : typeof call.call_analysis
     });
 
     return extractedData;
@@ -94,7 +148,7 @@ router.post('/retell', async (req, res) => {
             requestId,
             event: req.body.event,
             callId: req.body.call?.call_id,
-            surveyId: req.body.call?.metadata.survey_id,
+            surveyId: req.body.call?.metadata?.survey_id,
             payloadSize: JSON.stringify(req.body).length
         });
 
@@ -120,7 +174,25 @@ router.post('/retell', async (req, res) => {
 
         // Step 2: Extract data
         logger.info('STEP 2: Extracting webhook data', { requestId });
-        const { transcript, dynamicVariables, surveyId, callId, metadata } = extractWebhookData(req.body);
+        const {
+            transcript,
+            dynamicVariables,
+            surveyId,
+            callId,
+            agentId,
+            callAnalysis,
+            metadata
+        } = extractWebhookData(req.body, requestId);
+        logger.info('STEP 2: Webhook data extracted', {
+            requestId,
+            surveyId,
+            callId,
+            transcriptLength: transcript?.length || 0,
+            dynamicVariableKeys: Object.keys(dynamicVariables || {}),
+            hasCallAnalysis: !!callAnalysis,
+            callAnalysisKeys: callAnalysis ? Object.keys(callAnalysis) : [],
+            callAnalysisType: Array.isArray(callAnalysis) ? 'array' : typeof callAnalysis
+        });
 
         // Step 3: Check if record is already processed
         logger.info('STEP 3: Checking if record is already processed', {
@@ -185,7 +257,9 @@ router.post('/retell', async (req, res) => {
         }
 
         if (recordStatus.exists && !recordStatus.processed) {
+            // if (recordStatus.exists) {
             logger.info('Record not processed yet, proceeding with transcript update and summary generation', {
+                // logger.info('Proceeding with transcript update and summary generation', {
                 requestId,
                 surveyId,
                 recordExists: recordStatus.exists
@@ -215,22 +289,138 @@ router.post('/retell', async (req, res) => {
                 });
             }
 
-            // Step 4: Generate summary using LLM
-            logger.info('STEP 4: Generating summary with LLM', {
+            // Step 4: Get company settings and determine how to get summary
+            logger.info('STEP 4: Getting company settings', {
                 requestId,
                 surveyId,
                 callId,
-                transcriptLength: transcript.length,
-                dynamicVariables: Object.keys(dynamicVariables)
+                agentId
             });
 
-            const summary = await llmService.generateSummary(transcript, dynamicVariables);
+            let summaryText = null;
+            let summarySource = 'retell'; // Default to retell
 
-            logger.info('Summary generation completed', {
+            // Get company settings to check if we should use Ollama
+            const company = agentId ? await databaseService.getCompanyByAgentId(agentId) : null;
+
+            if (company && company.summary_by_ollama === true) {
+                // Use Ollama to generate summary
+                logger.info('Using Ollama for summary generation', {
+                    requestId,
+                    surveyId,
+                    companyId: company.id,
+                    companyName: company.name
+                });
+
+                summaryText = await llmService.generateSummary(transcript, dynamicVariables);
+                summarySource = 'ollama';
+
+                logger.info('Ollama summary generation completed', {
+                    requestId,
+                    surveyId,
+                    summaryLength: summaryText.length,
+                    summaryPreview: summaryText.substring(0, 100) + (summaryText.length > 100 ? '...' : '')
+                });
+            } else {
+                const callSummaryRaw = callAnalysis?.call_summary;
+
+                // Use summary from Retell call_analysis
+                logger.info('Using Retell call_analysis summary', {
+                    requestId,
+                    surveyId,
+                    companyId: company?.id || null,
+                    companyName: company?.name || null,
+                    summaryByOllamaDisabled: company ? !company.summary_by_ollama : 'no_company_found',
+                    hasCallAnalysis: !!callAnalysis,
+                    hasCallSummary: !!callSummaryRaw,
+                    callSummaryType: Array.isArray(callSummaryRaw) ? 'array' : typeof callSummaryRaw
+                });
+
+                if (callSummaryRaw && typeof callSummaryRaw === 'string') {
+                    // Trim the summary to remove any leading/trailing whitespace
+                    summaryText = callSummaryRaw.trim();
+
+                    if (summaryText.length > 0) {
+                        logger.info('Summary extracted from call_analysis', {
+                            requestId,
+                            surveyId,
+                            summaryLength: summaryText.length,
+                            summaryPreview: summaryText.substring(0, 100)
+                        });
+                    } else {
+                        logger.warn('call_summary exists but is empty after trimming', {
+                            requestId,
+                            surveyId,
+                            originalLength: callSummaryRaw.length
+                        });
+                        summaryText = '';
+                    }
+                } else if (Array.isArray(callSummaryRaw)) {
+                    // Join array summaries into a single string
+                    const cleanedSummaries = callSummaryRaw
+                        .filter(item => typeof item === 'string')
+                        .map(item => item.trim())
+                        .filter(item => item.length > 0);
+
+                    summaryText = cleanedSummaries.join(' ');
+
+                    if (summaryText.length > 0) {
+                        logger.info('Summary extracted from call_analysis array', {
+                            requestId,
+                            surveyId,
+                            summaryLength: summaryText.length,
+                            summaryPreview: summaryText.substring(0, 100),
+                            summaryItemCount: cleanedSummaries.length
+                        });
+                    } else {
+                        logger.warn('call_summary array exists but yielded no usable content', {
+                            requestId,
+                            surveyId,
+                            originalLength: callSummaryRaw.length
+                        });
+                    }
+                } else {
+                    logger.warn('No valid call_summary found in call_analysis', {
+                        requestId,
+                        surveyId,
+                        hasCallAnalysis: !!callAnalysis,
+                        callAnalysisKeys: callAnalysis ? Object.keys(callAnalysis) : [],
+                        callSummaryValue: callAnalysis?.call_summary
+                    });
+                    summaryText = '';
+                }
+            }
+
+            // Step 4.5: Build summary object with custom_analysis_data if available
+            let summaryObject = {
+                summary: summaryText
+            };
+
+            // Check if custom_analysis_data exists and is not empty
+            const customAnalysisData = callAnalysis?.custom_analysis_data;
+            if (customAnalysisData && typeof customAnalysisData === 'object' && Object.keys(customAnalysisData).length > 0) {
+                logger.info('Adding custom_analysis_data to summary object', {
+                    requestId,
+                    surveyId,
+                    customDataKeys: Object.keys(customAnalysisData)
+                });
+
+                // Merge custom_analysis_data into summary object
+                summaryObject = {
+                    ...summaryObject,
+                    ...customAnalysisData
+                };
+            }
+
+            // Convert summary object to JSON string for database storage
+            const summary = JSON.stringify(summaryObject);
+
+            logger.info('Summary object created', {
                 requestId,
                 surveyId,
+                summarySource,
                 summaryLength: summary.length,
-                summaryPreview: summary.substring(0, 100) + (summary.length > 100 ? '...' : '')
+                hasCustomData: !!customAnalysisData
             });
 
             // Step 5: Update database
@@ -297,13 +487,13 @@ router.post('/retell', async (req, res) => {
                 if (updated) {
                     logger.info({
                         surveyId,
-                        leadId: leadResult.leadId,
-                        customerName: surveyData.customer_name
+                        leadId: odooResult.leadId,
+                        customerName: leadData.customerName
                     }, 'Successfully created Odoo lead and marked survey as sent');
                 } else {
                     logger.warn({
                         surveyId,
-                        leadId: leadResult.leadId
+                        leadId: odooResult.leadId
                     }, 'Created Odoo lead but failed to update survey status');
                 }
 
@@ -332,6 +522,7 @@ router.post('/retell', async (req, res) => {
                 processingTime: `${processingTime}ms`,
                 action: dbResult.action,
                 summaryLength: summary.length,
+                summarySource,
                 odooLeadCreated: odooResult?.success || false
             });
 
@@ -343,6 +534,7 @@ router.post('/retell', async (req, res) => {
                     surveyId,
                     callId,
                     summaryLength: summary.length,
+                    summarySource,
                     databaseAction: dbResult.action,
                     processingTimeMs: processingTime,
                     record: dbResult.record,
@@ -360,7 +552,7 @@ router.post('/retell', async (req, res) => {
             error: error.message,
             stack: error.stack,
             processingTime: `${processingTime}ms`,
-            surveyId: req.body.call?.metadata.survey_id,
+            surveyId: req.body.call?.metadata?.survey_id,
             callId: req.body.call?.call_id
         });
 

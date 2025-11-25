@@ -1,0 +1,45 @@
+{
+    "service": "retell-webhook-processor",
+    "version": "1.0.0",
+    "requestId": "b09fe1a0f27d",
+    "surveyId": "147",
+    "callId": "call_3ee048ad09179c1aa20e21ffa60",
+    "transcriptLength": 4047,
+    "dynamicVariableKeys": [
+        "name",
+        "phone_number",
+        "email",
+        "service",
+        "budget",
+        "frustration",
+        "inefficiencies",
+        "priority_automation",
+        "important_outcome",
+        "hoursToSave",
+        "automationArea",
+        "growthObstacle",
+        "survey_date",
+        "lead_source",
+        "phoneNumber",
+        "businessName",
+        "businessType",
+        "primary_need",
+        "target_market",
+        "consentToUseAI",
+        "operationalFrustration"
+    ],
+    "hasCallAnalysis": true,
+    "callAnalysisKeys": [],
+    "callAnalysisType": "object"
+}
+
+{
+    "summary": "The call involved Micke Rockfeller discussing his interest in testing voice agents to qualify leads for his digital marketing company. The agent explained relevant solutions and attempted to schedule a follow-up meeting, which was set for Wednesday at 4 PM Pacific Time, with confirmation to follow via email.",
+    "business_description": "Digital marketing company focused on lead qualification using voice agents",
+    "next_steps": "The team will confirm availability for a meeting on Wednesday at 4 PM Pacific Time and follow up via email.",
+    "target_market": "Prospects for digital marketing services needing lead qualification",
+    "project_type": "Testing and implementing voice agents for lead qualification",
+    "specific_challenge": "Need to evaluate voice agents to qualify leads and determine suitability for sales follow-up",
+    "previous_experience": "No prior attempts to use voice agents for lead qualification",
+    "high_value_score": 7
+}

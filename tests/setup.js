@@ -14,6 +14,12 @@ process.env.OLLAMA_MODEL = 'qwen3:30b';
 process.env.MAX_TOKENS_PER_CHUNK = '2048';
 process.env.LOG_LEVEL = 'error'; // Reduce log noise during tests
 
+// Mock Odoo environment variables for testing
+process.env.ODOO_URL = 'http://localhost:8069';
+process.env.ODOO_DATABASE = 'test_db';
+process.env.ODOO_USERNAME = 'test_user';
+process.env.ODOO_API_KEY = 'test_api_key';
+
 // Mock console methods to reduce test output noise
 const originalConsole = { ...console };
 

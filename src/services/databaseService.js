@@ -23,12 +23,15 @@ class DatabaseService {
 
             if (result.rows.length > 0) {
                 const record = result.rows[0];
-                const isProcessed = record.processed === true;
+                const hasSummaryContent = !!(record.call_summary && record.call_summary.trim() !== '') && record.call_summary.trim() !== '{"summary":""}';
+                const isProcessedFlag = record.processed === true;
+                const isProcessed = isProcessedFlag && hasSummaryContent;
 
                 logger.info('Record found in database', {
                     surveyId,
                     processed: isProcessed,
-                    hasSummary: !!record.call_summary,
+                    processedFlag: isProcessedFlag,
+                    hasSummary: hasSummaryContent,
                     createdAt: record.created_at,
                     updatedAt: record.updated_at
                 });
@@ -250,13 +253,13 @@ class DatabaseService {
     async markAsSentToOdoo(surveyId) {
 
         try {
-            const query = `
+            const update_query = `
           UPDATE ${this.tableName}
           SET sent_to_odoo = TRUE, updated_at = NOW()
           WHERE id = $1
         `;
 
-            const result = await query(query, [surveyId]);
+            const result = await query(update_query, [surveyId]);
 
             if (result.rowCount === 0) {
                 logger.warn({ surveyId }, 'No rows updated when marking as sent to Odoo');
@@ -274,6 +277,47 @@ class DatabaseService {
             throw new Error(`Failed to mark as sent to odoo: ${error.message}`);
         }
     }
+
+    /**
+     * Get company settings by agent_id
+     * @param {string} agentId - The agent ID from the call
+     * @returns {Promise<Object|null>} Company settings or null if not found
+     */
+    async getCompanyByAgentId(agentId) {
+        try {
+            logger.info('Retrieving company by agent_id', { agentId });
+
+            const selectQuery = `
+                SELECT id, name, summary_by_ollama, agent_id
+                FROM companies
+                WHERE agent_id = $1
+            `;
+
+            const result = await query(selectQuery, [agentId]);
+
+            if (result.rows.length > 0) {
+                const company = result.rows[0];
+                logger.info('Company found', {
+                    agentId,
+                    companyId: company.id,
+                    companyName: company.name,
+                    summaryByOllama: company.summary_by_ollama
+                });
+
+                return company;
+            }
+
+            logger.warn('No company found for agent_id', { agentId });
+            return null;
+        } catch (error) {
+            logger.error('Error retrieving company by agent_id', {
+                agentId,
+                error: error.message
+            });
+            throw new Error(`Failed to retrieve company: ${error.message}`);
+        }
+    }
+
     /**
      * Create table if it doesn't exist (for development/testing)
      */

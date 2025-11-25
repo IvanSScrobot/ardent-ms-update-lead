@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">14.47% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/76</span>
+                <span class='fraction'>11/76</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">14.47% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/76</span>
+                <span class='fraction'>11/76</span>
             </div>
         
             
@@ -326,19 +326,19 @@
 <a name='L261'></a><a href='#L261'>261</a>
 <a name='L262'></a><a href='#L262'>262</a>
 <a name='L263'></a><a href='#L263'>263</a>
-<a name='L264'></a><a href='#L264'>264</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L264'></a><a href='#L264'>264</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -356,7 +356,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -465,8 +465,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -519,8 +519,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -538,7 +538,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -589,18 +589,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const express = <span class="cstat-no" title="statement not covered" >require('express');</span>
-const llmService = <span class="cstat-no" title="statement not covered" >require('../services/llmService');</span>
-const databaseService = <span class="cstat-no" title="statement not covered" >require('../services/databaseService');</span>
-const logger = <span class="cstat-no" title="statement not covered" >require('../utils/logger');</span>
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">const express = require('express');
+const llmService = require('../services/llmService');
+const databaseService = require('../services/databaseService');
+const logger = require('../utils/logger');
 &nbsp;
-const router = <span class="cstat-no" title="statement not covered" >express.Router();</span>
+const router = express.Router();
 &nbsp;
 /**
  * GET /health
  * Basic health check
  */
-<span class="cstat-no" title="statement not covered" >router.get('/', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {</span>
+router.get('/', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {
     const healthData = <span class="cstat-no" title="statement not covered" >{</span>
         status: 'healthy',
         timestamp: new Date().toISOString(),
@@ -619,7 +619,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
  * GET /health/detailed
  * Detailed health check including dependencies
  */
-<span class="cstat-no" title="statement not covered" >router.get('/detailed', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.get('/detailed', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
     const requestId = <span class="cstat-no" title="statement not covered" >req.headers['x-request-id'] || `health_${Date.now()}`;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    logger.info('Starting detailed health check', { requestId });</span>
@@ -728,7 +728,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
  * GET /health/readiness
  * Kubernetes readiness probe
  */
-<span class="cstat-no" title="statement not covered" >router.get('/readiness', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.get('/readiness', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
     const requestId = <span class="cstat-no" title="statement not covered" >req.headers['x-request-id'] || `readiness_${Date.now()}`;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    logger.debug('Readiness probe check started', { requestId });</span>
@@ -782,7 +782,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
  * GET /health/liveness
  * Kubernetes liveness probe
  */
-<span class="cstat-no" title="statement not covered" >router.get('/liveness', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {</span>
+router.get('/liveness', <span class="fstat-no" title="function not covered" >(r</span>eq, res) =&gt; {
     const requestId = <span class="cstat-no" title="statement not covered" >req.headers['x-request-id'] || `liveness_${Date.now()}`;</span>
 &nbsp;
     const response = <span class="cstat-no" title="statement not covered" >{</span>
@@ -801,7 +801,7 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
  * GET /health/startup
  * Kubernetes startup probe
  */
-<span class="cstat-no" title="statement not covered" >router.get('/startup', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {</span>
+router.get('/startup', <span class="fstat-no" title="function not covered" >as</span>ync (req, res) =&gt; {
     const requestId = <span class="cstat-no" title="statement not covered" >req.headers['x-request-id'] || `startup_${Date.now()}`;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    logger.info('Startup probe check', { requestId });</span>
@@ -852,14 +852,14 @@ const router = <span class="cstat-no" title="statement not covered" >express.Rou
     }
 });
 &nbsp;
-<span class="cstat-no" title="statement not covered" >module.exports = router;</span></pre></td></tr></table></pre>
+module.exports = router;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-22T02:07:41.903Z
+                at 2025-11-23T05:32:20.128Z
             </div>
         <script src="../prettify.js"></script>
         <script>

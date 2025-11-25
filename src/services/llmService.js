@@ -210,13 +210,111 @@ class LLMService {
 
         const chunkInfo = totalChunks > 1 ? ` (Part ${chunkNumber} of ${totalChunks})` : '';
 
-        const prompt = `Write a concise summary of the following${chunkInfo}:
+        const prompt = `Write a concise summary of the following ${chunkInfo}:
 
 "${transcript}"
 
 Additional context: ${variablesText}
+SYSTEM INSTRUCTIONS:
 
-CONCISE SUMMARY:`;
+- Include only the most important fields from the call.
+
+- Do not duplicate data across fields.
+
+- Use bullet points for call_summary (3–6 items).
+
+- Always output in valid JSON format.
+
+- Never include commentary outside of the JSON object.
+
+ 
+
+OUTPUT SCHEMA:
+
+{
+
+  "prospect_name": "{{full name}}",
+
+  "prospect_contacts: "{{ email and phone number }}",,
+
+  "business_name": "{{business name }",
+
+  "business_details": "{{any relevant details about the business from the Additional context, else null}}",
+
+  "service_type": "{{prospect’s business type if mentioned, else null}}",
+
+  "frustration": "{{main challenge or pain point if it's clear from the call, else null}}",
+
+  "emotional_tone": "{{rushed, skeptical, curious, engaged, burned out, resistant, or null}}",
+
+  "energy_level": "{{low, medium, high}}",
+
+  "appointment_booked": "{{true/false}}",
+
+  "appointment_date": "{{if booked, else null}}",
+
+  "appointment_time": "{{if booked, else null}}",
+
+  "next_steps": "{{summary of agreed next step}}",
+
+  "call_summary": [
+
+    "{{bullet point 1: summary of the phone call}}",
+
+    "{{bullet point 2: client's main pain or situation}}",
+
+    "{{bullet point 3: secondary issue, objection, or concern}}",
+
+    "{{bullet point 4: Voice agent's key action or response}}",
+
+    "{{bullet point 5: agreed next step or booking detail}}"
+
+  ]
+
+}
+
+
+EXAMPLE OUTPUT:
+
+{
+
+  "prospect_name": "Sarah Johnson",
+  "prospect_contacts": "email@gmail.com, +123-456-7890",
+
+  "business_name": "Johnson Landscaping",
+
+  "business_details": "Number of employees: 15, Annual Revenue: $2M, Number of hours per week to be save by automation: 20, Most important outcome from automation: Better customer experience",
+
+  "service_type": "Landscaping",
+
+  "frustration": "Losing leads from missed after-hours calls",
+
+  "emotional_tone": "frustrated but curious",
+
+  "energy_level": "medium",
+
+  "appointment_booked": true,
+
+  "appointment_date": "2025-09-06",
+
+  "appointment_time": "2:00 PM",
+
+  "next_steps": "Strategy session booked with operations manager",
+
+  "call_summary": [
+    "1. During the call, agent Jennie introduced the AI answering service to Sarah, highlighting its 24/7 availability and lead capture capabilities. Sarah expressed interest but was concerned about reliability. Agrred to book a strategy session. Asked about pricing.",
+
+    "2. Prospect losing leads due to missed after-hours calls",
+
+    "3. Prospect mentioned extra costs from paying staff overtime to cover phones. Worries about AI handling customer interactions.",
+
+    "4. Jennie reassured them about AI handling reliability",
+
+    "5. Booking confirmed for Sept 6 at 2:00 PM with operations manager. The manager should be prepared to talk numbers and current call handling process."
+
+  ]
+}
+`;
 
         logger.debug('Prompt constructed', {
             chunkNumber,

@@ -48,7 +48,7 @@ describe('LLM Service Tests', () => {
 
             expect(prompt).toContain(transcript);
             expect(prompt).toContain('John Doe');
-            expect(prompt).toContain('CONCISE SUMMARY:');
+            expect(prompt).toContain('OUTPUT SCHEMA:');
         });
 
         test('should construct prompt correctly without variables', () => {
@@ -57,7 +57,7 @@ describe('LLM Service Tests', () => {
 
             expect(prompt).toContain(transcript);
             expect(prompt).toContain('No additional variables provided');
-            expect(prompt).toContain('CONCISE SUMMARY:');
+            expect(prompt).toContain('OUTPUT SCHEMA:');
         });
 
         test('should include chunk information for multiple chunks', () => {
@@ -89,7 +89,7 @@ describe('LLM Service Tests', () => {
                     stream: false
                 }),
                 expect.objectContaining({
-                    timeout: 60000,
+                    timeout: 600000,
                     headers: expect.objectContaining({
                         'Content-Type': 'application/json'
                     })

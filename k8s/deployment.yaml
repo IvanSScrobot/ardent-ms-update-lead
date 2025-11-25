@@ -36,7 +36,7 @@ spec:
         fsGroup: 1001
       containers:
         - name: retell-webhook-processor
-          image: ivansscrobot/ardent-ms-retell-processor:0.1
+          image: ivansscrobot/ardent-ms-retell-processor:0.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000

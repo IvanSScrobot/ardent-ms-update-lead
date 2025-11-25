@@ -1,0 +1,45 @@
+\d companies
+                                         Table "public.companies"
+      Column       |          Type          | Collation | Nullable |                Default                
+-------------------+------------------------+-----------+----------+---------------------------------------
+ id                | integer                |           | not null | nextval('companies_id_seq'::regclass)
+ name              | character varying(255) |           | not null | 
+ active            | boolean                |           | not null | true
+ agent_id          | character varying(255) |           |          | 
+ agent_phone       | character varying(25)  |           |          | 
+ summary_by_ollama | boolean                |           |          | 
+Indexes:
+    "companies_pkey" PRIMARY KEY, btree (id)
+Referenced by:
+    TABLE "api_keys" CONSTRAINT "api_keys_company_id_fkey" FOREIGN KEY (company_id) REFERENCES companies(id) ON UPDATE CASCADE ON DELETE CASCADE
+
+ardent_survey=# \d survey_responses
+                                             Table "public.survey_responses"
+         Column          |           Type           | Collation | Nullable |                   Default                    
+-------------------------+--------------------------+-----------+----------+----------------------------------------------
+ id                      | integer                  |           | not null | nextval('survey_responses_id_seq'::regclass)
+ customer_id             | integer                  |           |          | 
+ business_type           | character varying(255)   |           |          | 
+ employee_count          | character varying(50)    |           |          | 
+ revenue                 | character varying(50)    |           |          | 
+ operational_frustration | text                     |           |          | 
+ time_consuming_tasks    | text                     |           |          | 
+ inefficiencies          | text                     |           |          | 
+ automation_area         | text                     |           |          | 
+ one_task_to_automate    | text                     |           |          | 
+ hours_to_save           | character varying(50)    |           |          | 
+ growth_obstacle         | text                     |           |          | 
+ important_outcome       | character varying(255)   |           |          | 
+ created_at              | timestamp with time zone |           |          | CURRENT_TIMESTAMP
+ processed               | boolean                  |           |          | 
+ call_summary            | text                     |           |          | 
+ updated_at              | timestamp with time zone |           |          | now()
+ transcript              | text                     |           | not null | ''::text
+ sent_to_odoo            | boolean                  |           |          | 
+ survey_answers          | jsonb                    |           |          | 
+ submission_id           | character varying(255)   |           |          | 
+ company_id              | character varying(255)   |           |          | 
+Indexes:
+    "survey_responses_pkey" PRIMARY KEY, btree (id)
+Foreign-key constraints:
+    "survey_responses_customer_id_fkey" FOREIGN KEY (customer_id) REFERENCES customers(id)
